@@ -1,16 +1,38 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom"; // Import Link for navigation
 
 const BugList = () => {
   const [bugs, setBugs] = useState([]);
+  const navigate = useNavigate(); // Hook to navigate to the 'Report New Bug' page
 
+  // Fetch bugs from the backend
   useEffect(() => {
     axios
       .get("http://localhost:5000/api/bugs")
       .then((response) => setBugs(response.data))
       .catch((err) => console.error(err));
   }, []);
+
+  // Function to delete a bug
+  const deleteBug = (id) => {
+    axios
+      .delete(`http://localhost:5000/api/bugs/${id}`)
+      .then((response) => {
+        setBugs(bugs.filter((bug) => bug._id !== id)); // Remove deleted bug from UI
+      })
+      .catch((err) => console.error("Error deleting bug", err));
+  };
+
+  // Function to navigate to the 'Report New Bug' page
+  const reportNewBug = () => {
+    navigate("/report");
+  };
+
+  // Function to handle editing a bug (currently just navigates to the 'report' page with bug data)
+  const editBug = (bug) => {
+    navigate(`/edit/${bug._id}`, { state: { bug } }); // Pass the bug data for editing
+  };
 
   return (
     <div className="bg-gray-100 min-h-screen p-6">
@@ -66,8 +88,8 @@ const BugList = () => {
                     Edit
                   </Link>
                   <button
+                    onClick={() => deleteBug(bug._id)} // Add delete functionality here
                     className="bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transform transition duration-200 hover:scale-105"
-                    // Implement delete functionality here
                   >
                     Delete
                   </button>
