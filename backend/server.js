@@ -56,18 +56,29 @@ app.delete("/api/bugs/:id", async (req, res) => {
   }
 });
 
-// Update a bug status to resolved
+// Update a bug
 app.put("/api/bugs/:id", async (req, res) => {
   const { id } = req.params;
+  const { title, description, status } = req.body; // Get all updated fields from request body
 
   try {
-    const bug = await Bug.findByIdAndUpdate(id, { status: "resolved" }, { new: true });
+    const bug = await Bug.findByIdAndUpdate(
+      id,
+      { 
+        title,
+        description,
+        status
+      },
+      { new: true }
+    );
+    
     if (!bug) {
       return res.status(404).json({ message: "Bug not found" });
     }
+    
     res.json(bug);
   } catch (err) {
-    res.status(500).json({ message: "Error updating bug status" });
+    res.status(500).json({ message: "Error updating bug", error: err.message });
   }
 });
 
